@@ -20,7 +20,7 @@
       (print "\nType EDN: ") (flush)
       (recur (read-line)))))
 
-(defn- set-interval [callback ms] 
+(defn- set-interval [callback ms]
   (future
     (while true
       (do (Thread/sleep ms)
@@ -29,6 +29,17 @@
                                    (str
                                     "caught exception: "
                                     (.getMessage e)))))))))
+
+;; (defmacro ^:private set-interval
+;;   [interval & body]
+;;   `(future
+;;     (while true
+;;       (do (Thread/sleep ~interval)
+;;           (try ~@body
+;;                (catch Exception e (prn
+;;                                    (str
+;;                                     "caught exception: "
+;;                                     (.getMessage e)))))))))
 
 (defn println-evalued
   [s]
@@ -52,5 +63,4 @@
                  :name "signals-server"
                  :accept 'sputnik.core/signals-server
                  :args [shared-data]})
-  (future
-    (set-interval (process shared-data) 5000)))
+  (set-interval (process shared-data) 5000))
