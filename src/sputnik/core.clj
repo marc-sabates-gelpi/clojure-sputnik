@@ -46,11 +46,11 @@
 
 (defn -main
   [& args]
+  (println "~~ System started ~~")
   (def shared-data (chan 128))
   (start-server {:port 3333
                  :name "signals-server"
                  :accept 'sputnik.core/signals-server
                  :args [shared-data]})
   (future
-    (do
-      (set-interval (process shared-data) 5000))))
+    (set-interval (process shared-data) 5000)))
