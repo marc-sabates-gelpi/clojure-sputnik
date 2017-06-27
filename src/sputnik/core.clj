@@ -1,13 +1,14 @@
 (ns sputnik.core
   (:use [clojure.java.io :only [reader writer]]
         [clojure.core.server :only [start-server]]
-        [clojure.core.async :as a :refer [>! <! >!! <!! go chan buffer close! thread
-                     alts! alts!! timeout alt!]])
+        [clojure.core.async
+         :refer [>!! go chan]]
+        [sputnik.utils :as utils])
   (:gen-class))
 
 ;; Objectives:
 ;; * Function to emit the periodic signal (done)
-;; * Listen to on TCP port for new periodic signal functions (done)
+;; * Listen to on a TCP port for new periodic signal functions (done)
 ;; * Persist periodic signal function
 
 (def default "(str \"Bip!\")")
@@ -19,16 +20,6 @@
       (>!! c input)
       (print "\nType EDN: ") (flush)
       (recur (read-line)))))
-
-(defmacro ^:private set-interval [interval & body]
-  `(future
-    (while true
-      (do (Thread/sleep ~interval)
-          (try ~@body
-               (catch Exception e# (prn
-                                    (str
-                                     "caught exception: "
-                                     (.getMessage e#)))))))))
 
 (defn println-evalued
   [s]
@@ -43,10 +34,7 @@
   (def shared-data (chan 128))
   (start-server {:port 3333
                  :name "signals-server"
-                 :accept 'sputnik.core/signals-server
+                 :accept `signals-server
                  :args [shared-data]})
-  (set-interval 5000
-                (go
-                 (println-evalued (alt!
-                                   shared-data ([v] v)
-                                   :default default)))))
+  (utils/set-interval 5000
+                      (println-evalued (utils/read- shared-data default))))
