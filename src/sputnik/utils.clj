@@ -3,6 +3,12 @@
           :refer [go alt!]])
   (:gen-class))
 
+;; TODO Use to implement set-interval
+;; (go-loop [seconds 1]
+;;          (<! (timeout 1000))
+;;          (print "waited" seconds "seconds")
+;;          (recur (inc seconds)))
+
 (defmacro set-interval [interval & body]
   "Execute the body forms every interval ms"
   `(future
@@ -15,12 +21,10 @@
                                      (.getMessage e#)))))
           (Thread/sleep ~interval)))))
 
-(defmacro read- [c default]
-  "Read from c with default"
+(defmacro read- [c]
+  "Read from c"
   `(go
-    (alt!
-     ~c ([v#] v#)
-     :default ~default)))
+    (<!! ~c)))
 
 (defn println-evalued
   [s]
