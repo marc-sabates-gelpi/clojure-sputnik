@@ -21,3 +21,10 @@
     (alt!
      ~c ([v#] v#)
      :default ~default)))
+
+(defn println-evalued
+  [s]
+  (-> s
+      read-string
+      eval
+      println))

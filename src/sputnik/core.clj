@@ -2,7 +2,7 @@
   (:use [clojure.java.io :only [reader writer]]
         [clojure.core.server :only [start-server]]
         [clojure.core.async
-         :refer [>!! go chan]]
+         :refer [>!! go chan <!!]]
         [sputnik.utils :as utils])
   (:gen-class))
 
@@ -21,13 +21,6 @@
       (print "\nType EDN: ") (flush)
       (recur (read-line)))))
 
-(defn println-evalued
-  [s]
-  (-> s
-      read-string
-      eval
-      println))
-
 (defn -main
   [& args]
   (println "~~ System started ~~")
@@ -37,4 +30,7 @@
                  :accept `signals-server
                  :args [shared-data]})
   (utils/set-interval 5000
-                      (println-evalued (utils/read- shared-data default))))
+                      (->
+                       (utils/read- shared-data default)
+                       <!!
+                       utils/println-evalued)))
