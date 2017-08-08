@@ -3,7 +3,7 @@
         [clojure.core.server :only [start-server]]
         [clojure.core.async
          :refer [>!! chan <! go-loop]]
-        [sputnik.utils :as utils])
+        [utils.core :as utils])
   (:gen-class))
 
 ;; Objectives:
